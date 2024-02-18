@@ -4,13 +4,29 @@ import threading
 import time
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'votre_clé_secrète'
 
 shortcuts = {}
+stop_detection_flag = False  # Initialisez la variable stop_detection_flag
 
+@app.route('/stop_detection', methods=['GET'])
+def stop_detection():
+    global stop_detection_flag
+    stop_detection_flag = True
+    return redirect(url_for('index'))
+
+@app.route('/start_detection', methods=['GET'])
+def start_detection():
+    global stop_detection_flag
+    stop_detection_flag = False  # Réinitialisez le drapeau d'arrêt
+    detection_thread = threading.Thread(target=detect_shortcuts)
+    detection_thread.daemon = True
+    detection_thread.start()
+    return jsonify({'message': 'Détection démarrée avec succès.'}), 200
+    
 def detect_shortcuts():
     typed_text = ""
-    while True:
+    while not stop_detection_flag:
         event = keyboard.read_event()
         if event.event_type == keyboard.KEY_DOWN:
             typed_text += event.name
@@ -23,6 +39,8 @@ def detect_shortcuts():
                     keyboard.write(replacement)
                     time.sleep(0.1)  # Attendre un peu pour éviter la répétition involontaire
                     typed_text = ""
+    print("Détection arrêtée.")
+
 
 @app.route('/save_shortcut', methods=['POST'])
 def save_shortcut():
@@ -31,7 +49,7 @@ def save_shortcut():
     with open("shortcuts.txt", "a") as f:
         f.write(f"{shortcut}={replacement}\n")
     shortcuts[shortcut] = replacement
-    flash(f"Shortcut '{shortcut}' saved successfully.", 'success')
+    flash(f"Raccourci '{shortcut}' enregistré avec succès.", 'success')
     return redirect(url_for('index'))
 
 @app.route('/')
@@ -59,7 +77,7 @@ def delete_shortcuts():
     data = request.json
     shortcuts_to_delete = data.get('shortcuts', [])
     if not shortcuts_to_delete:
-        return jsonify({'error': 'No shortcuts selected.'}), 400
+        return jsonify({'error': 'Aucun raccourci sélectionné.'}), 400
     try:
         with open("shortcuts.txt", "r") as f:
             lines = f.readlines()
@@ -69,11 +87,12 @@ def delete_shortcuts():
                 if shortcut in shortcuts_to_delete:
                     continue
                 f.write(line)
-        return jsonify({'message': f"Shortcuts {', '.join(shortcuts_to_delete)} deleted successfully."}), 200
+        return jsonify({'message': f"Raccourcis {', '.join(shortcuts_to_delete)} supprimés avec succès."}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    stop_detection_flag = False  # Initialisez la variable stop_detection_flag
     detection_thread = threading.Thread(target=detect_shortcuts)
     detection_thread.daemon = True
     detection_thread.start()

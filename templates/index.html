@@ -33,6 +33,40 @@
     </div>
     
     <script>
+        document.getElementById('stopDetection').addEventListener('click', function() {
+            fetch('/stop_detection', {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Détection arrêtée avec succès.');
+                } else {
+                    alert('Échec de l\'arrêt de la détection.');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'arrêt de la détection :', error);
+                alert('Erreur lors de l\'arrêt de la détection.');
+            });
+        });
+    
+        document.getElementById('startDetection').addEventListener('click', function() {
+            fetch('/start_detection', {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Détection démarrée avec succès.');
+                } else {
+                    alert('Échec du démarrage de la détection.');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors du démarrage de la détection :', error);
+                alert('Erreur lors du démarrage de la détection.');
+            });
+        });
+    
         document.getElementById('loadShortcuts').addEventListener('click', function() {
             fetch('/load_shortcuts')
             .then(response => response.json())
@@ -53,10 +87,10 @@
             const checkboxes = document.querySelectorAll('input[name="shortcut"]:checked');
             const shortcutsToDelete = Array.from(checkboxes).map(checkbox => checkbox.value);
             if (shortcutsToDelete.length === 0) {
-                alert('Please select at least one shortcut to delete.');
+                alert('Veuillez sélectionner au moins un raccourci à supprimer.');
                 return;
             }
-            if (confirm(`Are you sure you want to delete the selected shortcuts: ${shortcutsToDelete.join(', ')}?`)) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer les raccourcis sélectionnés : ${shortcutsToDelete.join(', ')} ?`)) {
                 fetch('/delete_shortcuts', {
                     method: 'POST',
                     headers: {
@@ -69,10 +103,12 @@
                     alert(data.message);
                     window.location.reload();  // Recharge la page pour mettre à jour la liste des raccourcis
                 })
-                .catch(error => alert('Error deleting shortcuts.'));
+                .catch(error => alert('Erreur lors de la suppression des raccourcis.'));
             }
         });
     </script>
+
+
 
 <style>
 .container {
