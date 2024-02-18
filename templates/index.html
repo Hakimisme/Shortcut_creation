@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création de raccourci</title>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #007bff;">Création de raccourci</h1>
+        <form action="/save_shortcut" method="POST">
+            <label for="shortcut" style="color: #000000;">Raccourci :</label>
+            <input type="text" id="shortcut" name="shortcut" required><br><br>
+            <label for="replacement" style="color: #000000;">Remplacement :</label>
+            <textarea id="replacement" name="replacement" rows="4" cols="50"></textarea><br><br>
+            <button type="submit" style="background-color: #28a745; color: #fff; padding: 10px 20px; border-radius: 5px;">Enregistrer le raccourci</button>
+        </form>
+
+        <h2 style="color: #007bff;">Liste des raccourcis</h2>
+        <ul id="shortcutsList">
+            {% for shortcut, replacement in loaded_shortcuts.items() %}
+            <li>
+                <input type="checkbox" name="shortcut" value="{{ shortcut }}"> 
+                <b>{{ shortcut }}</b> => {{ replacement | replace("\n", "<br>") }}
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <button id="loadShortcuts" style="background-color: #ffc107; color: #fff; padding: 10px 20px; border-radius: 5px; margin-bottom: 10px;">Actualiser les raccourcis</button><br>
+        <button id="startDetection" style="background-color: #dc3545; color: #fff; padding: 10px 20px; border-radius: 5px; margin-bottom: 10px;">Commencer la detection</button><br>
+        <button id="stopDetection" style="background-color: #17a2b8; color: #fff; padding: 10px 20px; border-radius: 5px; margin-bottom: 10px;">Arreter la detection</button><br>
+        <button id="deleteShortcut" style="background-color: #6c757d; color: #fff; padding: 10px 20px; border-radius: 5px;">Supprimer le raccourci</button>
+    </div>
+    
+    <script>
+        document.getElementById('loadShortcuts').addEventListener('click', function() {
+            fetch('/load_shortcuts')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('shortcutsList');
+                list.innerHTML = '';
+                for (const [shortcut, replacement] of Object.entries(data)) {
+                    const item = document.createElement('li');
+                    item.innerHTML = `
+                        <input type="checkbox" name="shortcut" value="${shortcut}">
+                        <b>${shortcut}</b> => ${replacement.replace(/\n/g, '<br>')}`;
+                    list.appendChild(item);
+                }
+            });
+        });
+    
+        document.getElementById('deleteShortcut').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[name="shortcut"]:checked');
+            const shortcutsToDelete = Array.from(checkboxes).map(checkbox => checkbox.value);
+            if (shortcutsToDelete.length === 0) {
+                alert('Please select at least one shortcut to delete.');
+                return;
+            }
+            if (confirm(`Are you sure you want to delete the selected shortcuts: ${shortcutsToDelete.join(', ')}?`)) {
+                fetch('/delete_shortcuts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ shortcuts: shortcutsToDelete })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();  // Recharge la page pour mettre à jour la liste des raccourcis
+                })
+                .catch(error => alert('Error deleting shortcuts.'));
+            }
+        });
+    </script>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centrer le contenu */
+}
+
+h1, h2 {
+    text-align: center; /* Centrer les titres */
+}
+
+form {
+    margin: 0 auto; /* Centrer le formulaire */
+    max-width: 400px; /* Largeur maximale du formulaire */
+    text-align: center; /* Centrer le contenu du formulaire */
+}
+
+label {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+input[type="text"],
+textarea {
+    width: calc(100% - 12px);
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    display: block;
+    margin: 0 auto; /* Centrer les boutons */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: center; /* Centrer le contenu de la liste */
+}
+
+li {
+    margin-bottom: 10px;
+    display: inline-block; /* Afficher les éléments de la liste en ligne */
+    text-align: left; /* Aligner le texte à gauche */
+}
+
+@media (max-width: 768px) {
+    form {
+        max-width: none; /* Aucune largeur maximale sur les petits écrans */
+    }
+}
+
+</style>
+</body>
+</html>
