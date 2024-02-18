@@ -40,6 +40,11 @@ _____________________________________________________
 
 In summary, this tool provides a convenient solution for creating and using custom keyboard shortcuts in various contexts, which can contribute to improving user efficiency and productivity when using their computer. 🚀
 
+
+https://github.com/Hakimisme/Shortcut_creation/assets/71923414/affbd722-ae6f-4ff9-8493-63774b8230fb
+
+
+
 _____________________________________________________
 _____________________________________________________
 
@@ -85,3 +90,6 @@ _____________________________________________________
 🖥️ Interface utilisateur conviviale : L'interface utilisateur est conçue pour être conviviale avec une mise en page claire et des éléments interactifs tels que des boutons et des cases à cocher pour faciliter la création, la gestion et la suppression des raccourcis.
 
 En résumé, cet outil offre une solution pratique pour créer et utiliser des raccourcis clavier personnalisés dans divers contextes, ce qui peut contribuer à améliorer l'efficacité et la productivité de l'utilisateur lors de l'utilisation de son ordinateur. 🚀
+
+https://github.com/Hakimisme/Shortcut_creation/assets/71923414/affbd722-ae6f-4ff9-8493-63774b8230fb
+
